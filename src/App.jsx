@@ -223,11 +223,36 @@ function App() {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               borderRadius: '8px',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+              boxShadow: `
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 0 60px rgba(255,255,255,0.1),
+                0 0 40px rgba(255,255,255,0.05)
+              `,
               border: '2px solid rgba(255,255,255,0.1)',
-              imageRendering: 'crisp-edges'
+              imageRendering: 'crisp-edges',
+              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.2}) contrast(${1 + (mousePosition.y - 0.5) * 0.15})`
             }}
-          />
+          >
+            {/* Album cover shine effect */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px',
+                background: `linear-gradient(${45 + mousePosition.x * 90}deg, 
+                  rgba(255,255,255,0.3) 0%, 
+                  rgba(255,255,255,0.1) 30%, 
+                  transparent 50%, 
+                  rgba(255,255,255,0.1) 70%, 
+                  rgba(255,255,255,0.2) 100%)`,
+                pointerEvents: 'none',
+                mixBlendMode: 'overlay'
+              }}
+            />
+          </div>
           
           {/* Album Back Cover */}
           <div
@@ -242,11 +267,36 @@ function App() {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               borderRadius: '8px',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.3)',
+              boxShadow: `
+                0 20px 40px rgba(0,0,0,0.3),
+                inset 0 0 60px rgba(255,255,255,0.1),
+                0 0 40px rgba(255,255,255,0.05)
+              `,
               border: '2px solid rgba(255,255,255,0.1)',
-              imageRendering: 'crisp-edges'
+              imageRendering: 'crisp-edges',
+              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.2}) contrast(${1 + (mousePosition.y - 0.5) * 0.15})`
             }}
-          />
+          >
+            {/* Album cover shine effect */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '8px',
+                background: `linear-gradient(${45 + mousePosition.x * 90}deg, 
+                  rgba(255,255,255,0.3) 0%, 
+                  rgba(255,255,255,0.1) 30%, 
+                  transparent 50%, 
+                  rgba(255,255,255,0.1) 70%, 
+                  rgba(255,255,255,0.2) 100%)`,
+                pointerEvents: 'none',
+                mixBlendMode: 'overlay'
+              }}
+            />
+          </div>
         </div>
 
         {/* Vinyl Record Container */}
@@ -285,10 +335,34 @@ function App() {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               borderRadius: '50%',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-              imageRendering: 'crisp-edges'
+              boxShadow: `
+                0 25px 50px rgba(0,0,0,0.4),
+                inset 0 0 100px rgba(255,255,255,0.1),
+                0 0 60px rgba(255,255,255,0.05)
+              `,
+              imageRendering: 'crisp-edges',
+              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.3}) contrast(${1 + (mousePosition.y - 0.5) * 0.2})`
             }}
-          />
+          >
+            {/* Vinyl shine effect */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                background: `radial-gradient(ellipse at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
+                  rgba(255,255,255,0.4) 0%, 
+                  rgba(255,255,255,0.2) 20%, 
+                  rgba(255,255,255,0.05) 40%, 
+                  transparent 60%)`,
+                pointerEvents: 'none',
+                mixBlendMode: 'overlay'
+              }}
+            />
+          </div>
           
           {/* Vinyl B-Side */}
           <div
@@ -305,13 +379,37 @@ function App() {
               backgroundRepeat: 'no-repeat',
               backgroundPosition: 'center',
               borderRadius: '50%',
-              boxShadow: '0 25px 50px rgba(0,0,0,0.4)',
-              imageRendering: 'crisp-edges'
+              boxShadow: `
+                0 25px 50px rgba(0,0,0,0.4),
+                inset 0 0 100px rgba(255,255,255,0.1),
+                0 0 60px rgba(255,255,255,0.05)
+              `,
+              imageRendering: 'crisp-edges',
+              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.3}) contrast(${1 + (mousePosition.y - 0.5) * 0.2})`
             }}
-          />
+          >
+            {/* Vinyl shine effect */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '50%',
+                background: `radial-gradient(ellipse at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
+                  rgba(255,255,255,0.4) 0%, 
+                  rgba(255,255,255,0.2) 20%, 
+                  rgba(255,255,255,0.05) 40%, 
+                  transparent 60%)`,
+                pointerEvents: 'none',
+                mixBlendMode: 'overlay'
+              }}
+            />
+          </div>
         </div>
 
-        {/* Ambient lighting effects */}
+        {/* Enhanced ambient lighting effects */}
         <div
           style={{
             position: 'absolute',
@@ -325,6 +423,50 @@ function App() {
             pointerEvents: 'none'
           }}
         />
+
+        {/* Dynamic light rays */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            background: `conic-gradient(from ${mousePosition.x * 360}deg at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
+              transparent 0deg,
+              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 30deg,
+              transparent 60deg,
+              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 90deg,
+              transparent 120deg,
+              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 150deg,
+              transparent 180deg)`,
+            pointerEvents: 'none',
+            opacity: 0.6,
+            transition: 'background 0.2s ease'
+          }}
+        />
+
+        {/* Focused spotlight when vinyl is extracted */}
+        {isVinylExtracted && (
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              width: 'min(90vw, 90vh)',
+              height: 'min(90vw, 90vh)',
+              transform: 'translate(-50%, -50%)',
+              background: `radial-gradient(circle at center, 
+                rgba(255,215,0,0.1) 0%, 
+                rgba(255,215,0,0.05) 30%, 
+                transparent 60%)`,
+              pointerEvents: 'none',
+              borderRadius: '50%',
+              filter: 'blur(20px)',
+              animation: 'pulse 3s ease-in-out infinite'
+            }}
+          />
+        )}
       </div>
 
       {/* Flip zones indicators (only show when appropriate) */}
@@ -415,6 +557,12 @@ function App() {
           )}
         </div>
       </div>
+      <style jsx>{`
+        @keyframes pulse {
+          0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
+          50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.05); }
+        }
+      `}</style>
     </div>
   );
 }
