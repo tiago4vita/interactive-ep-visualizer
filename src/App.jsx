@@ -79,7 +79,7 @@ function App() {
         setDragStart({ x: event.clientX, y: event.clientY });
         event.preventDefault();
       } else if (isVinylExtracted) {
-        // Allow storage when vinyl is extracted
+        // Allow storage when vinyl is extracted - remove the album cover condition
         setIsDragging(true);
         setDragStart({ x: event.clientX, y: event.clientY });
         event.preventDefault();
@@ -105,20 +105,23 @@ function App() {
     } else if (isDragging && isVinylExtracted) {
       // Handle storing vinyl back when extracted
       const deltaX = event.clientX - dragStart.x;
-      const minDragBack = -50; // Minimum pixels to drag left (negative)
       
-      if (deltaX < minDragBack) {
-        const progress = Math.max((deltaX - minDragBack) / -200, -1); // 200px total drag distance left
-        setVinylPosition(Math.max(0, 100 + (progress * 100))); // Decrease from 100% to 0%
+      // For storing, we want any leftward movement
+      if (deltaX < 0) {
+        const progress = Math.min(Math.abs(deltaX) / 200, 1); // 200px total drag distance left
+        setVinylPosition(100 - (progress * 100)); // Decrease from 100% to 0%
         
         // Complete storage
-        if (progress <= -1) {
+        if (progress >= 1) {
           setIsVinylExtracted(false);
           setVinylPosition(0);
           setIsDragging(false);
           setIsVinylFlipped(false);
           setIsVinylAnimating(false);
         }
+      } else {
+        // If dragging right while vinyl is extracted, keep it at 100%
+        setVinylPosition(100);
       }
     }
   };
@@ -153,7 +156,7 @@ function App() {
     return () => {
       document.removeEventListener('mousedown', handleMouseDown);
     };
-  }, [isDragging, dragStart, isVinylExtracted]);
+  }, [isDragging, dragStart, isVinylExtracted, isFlipped]);
 
   // Calculate perspective transformation
   const rotateX = (mousePosition.y - 0.5) * 15;
@@ -264,7 +267,8 @@ function App() {
             `,
             transition: isVinylAnimating || isVinylExtracted ? 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
             opacity: vinylPosition > 0 ? 1 : 0,
-            zIndex: 2
+            zIndex: 2,
+            cursor: isVinylExtracted ? 'grab' : 'default'
           }}
         >
           {/* Vinyl A-Side */}
