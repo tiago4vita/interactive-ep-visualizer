@@ -27,6 +27,7 @@ const AlbumCover = ({
           translate(-50%, -50%)
           translateX(${translateX}px) 
           translateY(${translateY}px) 
+          translateZ(0px)
           rotateX(${rotateX}deg) 
           rotateY(${rotateY}deg)
           ${isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}
@@ -35,7 +36,7 @@ const AlbumCover = ({
         transition: isAnimating || isVinylExtracted ? 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
         cursor: !isVinylExtracted ? 'grab' : 'default',
         opacity: isVinylExtracted ? 0.3 : 1,
-        zIndex: 3
+        zIndex: isVinylExtracted ? 1 : 3
       }}
     >
       {/* Album Front Cover */}

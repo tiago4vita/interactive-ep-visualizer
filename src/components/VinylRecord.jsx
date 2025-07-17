@@ -25,13 +25,13 @@ const VinylRecord = ({
         transform: `
           translate(-50%, -50%)
           ${isVinylExtracted 
-            ? `translateX(${translateX}px) translateY(${translateY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${isVinylFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}`
-            : `translateX(${vinylPosition}%)`
+            ? `translateX(${translateX}px) translateY(${translateY}px) translateZ(10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${isVinylFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}`
+            : `translateX(${vinylPosition}%) translateZ(-50px)`
           }
         `,
         transition: isVinylAnimating || isVinylExtracted ? 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
         opacity: vinylPosition > 0 ? 1 : 0,
-        zIndex: 2,
+        zIndex: isVinylExtracted ? 5 : 2,
         cursor: isVinylExtracted ? 'grab' : 'default'
       }}
     >

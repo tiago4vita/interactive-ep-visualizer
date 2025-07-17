@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MouseTracker from './components/MouseTracker';
-import AlbumCover from './components/AlbumCover';
-import VinylRecord from './components/VinylRecord';
-import afxFront from './assets/afx_selected8582_front.jpg';
-import afxBack from './assets/afx_selected8582_back.jpg';
-import afxASide from './assets/afx_selected8582_aside.jpg';
-import afxBSide from './assets/afx_selected8582_bside.jpg';
+import EPCarousel from './components/EPCarousel';
+import CarouselNavigation from './components/CarouselNavigation';
+import { data } from './data/data';
 
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
@@ -14,13 +11,19 @@ function App() {
   
   // Vinyl extraction states
   const [isVinylExtracted, setIsVinylExtracted] = useState(false);
-  const [vinylPosition, setVinylPosition] = useState(0); // 0 to 100 (percentage)
+  const [vinylPosition, setVinylPosition] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isVinylFlipped, setIsVinylFlipped] = useState(false);
   const [isVinylAnimating, setIsVinylAnimating] = useState(false);
   
+  // Carousel states
+  const [currentEPIndex, setCurrentEPIndex] = useState(0);
+  const [isCarouselTransitioning, setIsCarouselTransitioning] = useState(false);
+  
   const albumRef = useRef(null);
+
+  const currentEP = data[currentEPIndex];
 
   const handleMouseMove = (position) => {
     setMousePosition(position);
@@ -160,13 +163,29 @@ function App() {
     };
   }, [isDragging, dragStart, isVinylExtracted, isFlipped]);
 
+  // Handle carousel navigation
+  const handleCarouselNavigation = (newIndex) => {
+    if (newIndex !== currentEPIndex && !isCarouselTransitioning && !isVinylExtracted) {
+      setIsCarouselTransitioning(true);
+      setCurrentEPIndex(newIndex);
+      
+      // Reset states when switching EPs
+      setIsFlipped(false);
+      setIsAnimating(false);
+      setIsVinylFlipped(false);
+      setIsVinylAnimating(false);
+    }
+  };
+
+  const handleCarouselTransitionComplete = () => {
+    setIsCarouselTransitioning(false);
+  };
+
   // Calculate perspective transformation
   const rotateX = (mousePosition.y - 0.5) * 15;
   const rotateY = (mousePosition.x - 0.5) * -15;
   const translateX = (mousePosition.x - 0.5) * 30;
   const translateY = (mousePosition.y - 0.5) * 30;
-
-
 
   return (
     <div className="App">
@@ -184,30 +203,17 @@ function App() {
           perspectiveOrigin: `${mousePosition.x * 100}% ${mousePosition.y * 100}%`,
           overflow: 'hidden',
           zIndex: -1,
-          backgroundColor: isVinylExtracted ? '#f5f5f5' : '#1a1a1a',
+          backgroundColor: isVinylExtracted ? currentEP.theme.extractedBackground : currentEP.theme.background,
           transition: 'background-color 0.8s ease'
         }}
       >
-        {/* Album Cover Component */}
-        <AlbumCover
-          frontImage={afxFront}
-          backImage={afxBack}
+        {/* EP Carousel */}
+        <EPCarousel
+          data={data}
+          currentIndex={currentEPIndex}
           mousePosition={mousePosition}
           isFlipped={isFlipped}
           isAnimating={isAnimating}
-          isVinylExtracted={isVinylExtracted}
-          translateX={translateX}
-          translateY={translateY}
-          rotateX={rotateX}
-          rotateY={rotateY}
-          albumRef={albumRef}
-        />
-
-        {/* Vinyl Record Component */}
-        <VinylRecord
-          aSideImage={afxASide}
-          bSideImage={afxBSide}
-          mousePosition={mousePosition}
           isVinylExtracted={isVinylExtracted}
           isVinylFlipped={isVinylFlipped}
           isVinylAnimating={isVinylAnimating}
@@ -216,6 +222,8 @@ function App() {
           translateY={translateY}
           rotateX={rotateX}
           rotateY={rotateY}
+          albumRef={albumRef}
+          onTransitionComplete={handleCarouselTransitionComplete}
         />
 
         {/* Enhanced ambient lighting effects */}
@@ -243,11 +251,11 @@ function App() {
             height: '100%',
             background: `conic-gradient(from ${mousePosition.x * 360}deg at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
               transparent 0deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 30deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 30deg,
               transparent 60deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 90deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 90deg,
               transparent 120deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 150deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 150deg,
               transparent 180deg)`,
             pointerEvents: 'none',
             opacity: 0.6,
@@ -278,8 +286,16 @@ function App() {
         )}
       </div>
 
+      {/* Carousel Navigation */}
+      <CarouselNavigation
+        data={data}
+        currentIndex={currentEPIndex}
+        onNavigate={handleCarouselNavigation}
+        isVinylExtracted={isVinylExtracted}
+      />
+
       {/* Flip zones indicators (only show when appropriate) */}
-      {!isDragging && (
+      {!isDragging && !isCarouselTransitioning && (
         <>
           <div
             style={{
@@ -323,23 +339,29 @@ function App() {
       }}>
         <h1 style={{ 
           fontSize: 'clamp(2rem, 5vw, 4rem)', 
-          marginBottom: '1rem',
+          marginBottom: '0.5rem',
           textShadow: isVinylExtracted ? '2px 2px 8px rgba(255,255,255,0.8)' : '2px 2px 8px rgba(0,0,0,0.8)',
           fontWeight: '300',
           letterSpacing: '2px'
         }}>
-          AFX Selected Ambient Works
+          {currentEP.title}
         </h1>
         <p style={{ 
           fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
           textShadow: isVinylExtracted ? '1px 1px 4px rgba(255,255,255,0.8)' : '1px 1px 4px rgba(0,0,0,0.8)',
-          marginBottom: '2rem',
+          marginBottom: '0.5rem',
           opacity: 0.9
+        }}>
+          {currentEP.artist} • {currentEP.year}
+        </p>
+        <p style={{ 
+          fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+          textShadow: isVinylExtracted ? '1px 1px 4px rgba(255,255,255,0.8)' : '1px 1px 4px rgba(0,0,0,0.8)',
+          marginBottom: '2rem',
+          opacity: 0.7
         }}>
           Interactive EP Visualizer
         </p>
-        
-
 
         <div style={{
           position: 'absolute',
@@ -366,6 +388,7 @@ function App() {
           )}
         </div>
       </div>
+
       <style jsx>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
