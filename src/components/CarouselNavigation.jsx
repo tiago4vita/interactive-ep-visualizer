@@ -23,7 +23,10 @@ const CarouselNavigation = ({
         backdropFilter: 'blur(10px)',
         borderRadius: '25px',
         border: `1px solid ${isVinylExtracted ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.2)'}`,
-        transition: 'all 0.3s ease'
+        transition: 'all 0.3s ease',
+        opacity: isVinylExtracted ? 0 : 1,
+        pointerEvents: isVinylExtracted ? 'none' : 'auto',
+        visibility: isVinylExtracted ? 'hidden' : 'visible'
       }}
     >
       {data.map((_, index) => (
