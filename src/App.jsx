@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MouseTracker from './components/MouseTracker';
+import AlbumCover from './components/AlbumCover';
+import VinylRecord from './components/VinylRecord';
 import afxFront from './assets/afx_selected8582_front.jpg';
 import afxBack from './assets/afx_selected8582_back.jpg';
 import afxASide from './assets/afx_selected8582_aside.jpg';
@@ -186,228 +188,35 @@ function App() {
           transition: 'background-color 0.8s ease'
         }}
       >
-        {/* Album Cover Container */}
-        <div
-          ref={albumRef}
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: 'min(80vw, 80vh)',
-            height: 'min(80vw, 80vh)',
-            transformStyle: 'preserve-3d',
-            transform: `
-              translate(-50%, -50%)
-              translateX(${translateX}px) 
-              translateY(${translateY}px) 
-              rotateX(${rotateX}deg) 
-              rotateY(${rotateY}deg)
-              ${isFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}
-              ${isVinylExtracted ? 'translateX(-200%) scale(0.8)' : 'translateX(0%)'}
-            `,
-            transition: isAnimating || isVinylExtracted ? 'transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
-            cursor: !isVinylExtracted ? 'grab' : 'default',
-            opacity: isVinylExtracted ? 0.3 : 1,
-            zIndex: 3
-          }}
-        >
-          {/* Album Front Cover */}
-          <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backfaceVisibility: 'hidden',
-              backgroundImage: `url(${afxFront})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              borderRadius: '8px',
-              boxShadow: `
-                0 20px 40px rgba(0,0,0,0.3),
-                inset 0 0 60px rgba(255,255,255,0.1),
-                0 0 40px rgba(255,255,255,0.05)
-              `,
-              border: '2px solid rgba(255,255,255,0.1)',
-              imageRendering: 'crisp-edges',
-              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.2}) contrast(${1 + (mousePosition.y - 0.5) * 0.15})`
-            }}
-          >
-            {/* Album cover shine effect */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                borderRadius: '8px',
-                background: `linear-gradient(${45 + mousePosition.x * 90}deg, 
-                  rgba(255,255,255,0.3) 0%, 
-                  rgba(255,255,255,0.1) 30%, 
-                  transparent 50%, 
-                  rgba(255,255,255,0.1) 70%, 
-                  rgba(255,255,255,0.2) 100%)`,
-                pointerEvents: 'none',
-                mixBlendMode: 'overlay'
-              }}
-            />
-          </div>
-          
-          {/* Album Back Cover */}
-          <div
-            style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
-              backgroundImage: `url(${afxBack})`,
-              backgroundSize: 'contain',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              borderRadius: '8px',
-              boxShadow: `
-                0 20px 40px rgba(0,0,0,0.3),
-                inset 0 0 60px rgba(255,255,255,0.1),
-                0 0 40px rgba(255,255,255,0.05)
-              `,
-              border: '2px solid rgba(255,255,255,0.1)',
-              imageRendering: 'crisp-edges',
-              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.2}) contrast(${1 + (mousePosition.y - 0.5) * 0.15})`
-            }}
-          >
-            {/* Album cover shine effect */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                borderRadius: '8px',
-                background: `linear-gradient(${45 + mousePosition.x * 90}deg, 
-                  rgba(255,255,255,0.3) 0%, 
-                  rgba(255,255,255,0.1) 30%, 
-                  transparent 50%, 
-                  rgba(255,255,255,0.1) 70%, 
-                  rgba(255,255,255,0.2) 100%)`,
-                pointerEvents: 'none',
-                mixBlendMode: 'overlay'
-              }}
-            />
-          </div>
-        </div>
+        {/* Album Cover Component */}
+        <AlbumCover
+          frontImage={afxFront}
+          backImage={afxBack}
+          mousePosition={mousePosition}
+          isFlipped={isFlipped}
+          isAnimating={isAnimating}
+          isVinylExtracted={isVinylExtracted}
+          translateX={translateX}
+          translateY={translateY}
+          rotateX={rotateX}
+          rotateY={rotateY}
+          albumRef={albumRef}
+        />
 
-        {/* Vinyl Record Container */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            width: 'min(75vw, 75vh)', // Slightly smaller than album
-            height: 'min(75vw, 75vh)',
-            transformStyle: 'preserve-3d',
-            transform: `
-              translate(-50%, -50%)
-              ${isVinylExtracted 
-                ? `translateX(${translateX}px) translateY(${translateY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${isVinylFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}`
-                : `translateX(${vinylPosition}%)`
-              }
-            `,
-            transition: isVinylAnimating || isVinylExtracted ? 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
-            opacity: vinylPosition > 0 ? 1 : 0,
-            zIndex: 2,
-            cursor: isVinylExtracted ? 'grab' : 'default'
-          }}
-        >
-          {/* Vinyl A-Side */}
-          <div
-            style={{
-              position: 'absolute',
-              width: 'calc(100% - 12px)',
-              height: 'calc(100% - 12px)',
-              top: '6px',
-              left: '6px',
-              backfaceVisibility: 'hidden',
-              backgroundImage: `url(${afxASide})`,
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              borderRadius: '50%',
-              boxShadow: `
-                0 25px 50px rgba(0,0,0,0.4),
-                inset 0 0 100px rgba(255,255,255,0.1),
-                0 0 60px rgba(255,255,255,0.05)
-              `,
-              imageRendering: 'crisp-edges',
-              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.3}) contrast(${1 + (mousePosition.y - 0.5) * 0.2})`
-            }}
-          >
-            {/* Vinyl shine effect */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                background: `radial-gradient(ellipse at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
-                  rgba(255,255,255,0.4) 0%, 
-                  rgba(255,255,255,0.2) 20%, 
-                  rgba(255,255,255,0.05) 40%, 
-                  transparent 60%)`,
-                pointerEvents: 'none',
-                mixBlendMode: 'overlay'
-              }}
-            />
-          </div>
-          
-          {/* Vinyl B-Side */}
-          <div
-            style={{
-              position: 'absolute',
-              width: 'calc(100% - 12px)',
-              height: 'calc(100% - 12px)',
-              top: '6px',
-              left: '6px',
-              backfaceVisibility: 'hidden',
-              transform: 'rotateY(180deg)',
-              backgroundImage: `url(${afxBSide})`,
-              backgroundSize: 'cover',
-              backgroundRepeat: 'no-repeat',
-              backgroundPosition: 'center',
-              borderRadius: '50%',
-              boxShadow: `
-                0 25px 50px rgba(0,0,0,0.4),
-                inset 0 0 100px rgba(255,255,255,0.1),
-                0 0 60px rgba(255,255,255,0.05)
-              `,
-              imageRendering: 'crisp-edges',
-              filter: `brightness(${1 + (mousePosition.x - 0.5) * 0.3}) contrast(${1 + (mousePosition.y - 0.5) * 0.2})`
-            }}
-          >
-            {/* Vinyl shine effect */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                width: '100%',
-                height: '100%',
-                borderRadius: '50%',
-                background: `radial-gradient(ellipse at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
-                  rgba(255,255,255,0.4) 0%, 
-                  rgba(255,255,255,0.2) 20%, 
-                  rgba(255,255,255,0.05) 40%, 
-                  transparent 60%)`,
-                pointerEvents: 'none',
-                mixBlendMode: 'overlay'
-              }}
-            />
-          </div>
-        </div>
+        {/* Vinyl Record Component */}
+        <VinylRecord
+          aSideImage={afxASide}
+          bSideImage={afxBSide}
+          mousePosition={mousePosition}
+          isVinylExtracted={isVinylExtracted}
+          isVinylFlipped={isVinylFlipped}
+          isVinylAnimating={isVinylAnimating}
+          vinylPosition={vinylPosition}
+          translateX={translateX}
+          translateY={translateY}
+          rotateX={rotateX}
+          rotateY={rotateY}
+        />
 
         {/* Enhanced ambient lighting effects */}
         <div
