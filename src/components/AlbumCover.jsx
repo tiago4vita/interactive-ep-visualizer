@@ -39,6 +39,26 @@ const AlbumCover = ({
         zIndex: isVinylExtracted ? 1 : 3
       }}
     >
+      {/* Album Thickness/Spine */}
+      <div
+        style={{
+          position: 'absolute',
+          top: 5,
+          left: 5,
+          width: '99%',
+          height: '99%',
+          borderRadius: '2px',
+          background: 'rgba(220,220,220,0.15)', // light grey, low opacity
+          transform: 'translateZ(3px)',
+          boxShadow: `
+            0 0 0 2px #333,
+            0 0 0 4px #222,
+            0 0 0 6px #111,
+            0 40px 80px rgba(0,0,0,0.4)
+          `
+        }}
+      />
+
       {/* Album Front Cover */}
       <div
         style={{
@@ -51,6 +71,7 @@ const AlbumCover = ({
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           borderRadius: '8px',
+          transform: 'translateZ(4px)',
           boxShadow: `
             0 20px 40px rgba(0,0,0,0.3),
             inset 0 0 60px rgba(255,255,255,0.1),
@@ -89,7 +110,7 @@ const AlbumCover = ({
           width: '100%',
           height: '100%',
           backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)',
+          transform: 'rotateY(180deg) translateZ(4px)',
           backgroundImage: `url(${backImage})`,
           backgroundSize: 'contain',
           backgroundRepeat: 'no-repeat',

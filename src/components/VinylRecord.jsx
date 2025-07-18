@@ -35,6 +35,25 @@ const VinylRecord = ({
         cursor: isVinylExtracted ? 'grab' : 'default'
       }}
     >
+      {/* Vinyl Thickness/Edge */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          width: 'calc(100% - 16px)',
+          height: 'calc(100% - 16px)',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 50% 50%, transparent 0%, #111 80%, #000 100%)',
+          transform: 'translateZ(-1px)',
+          boxShadow: `
+            0 0 0 3px #222,
+            0 0 0 6px #111,
+            0 30px 60px rgba(0,0,0,0.6)
+          `
+        }}
+      />
+
       {/* Vinyl A-Side */}
       <div
         style={{
@@ -49,6 +68,7 @@ const VinylRecord = ({
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           borderRadius: '50%',
+          transform: 'translateZ(2px)',
           boxShadow: `
             0 25px 50px rgba(0,0,0,0.5),
             inset 0 0 100px rgba(0, 0, 0, 0.1),
@@ -87,7 +107,7 @@ const VinylRecord = ({
           top: '6px',
           left: '6px',
           backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)',
+          transform: 'rotateY(180deg) translateZ(4px)',
           backgroundImage: `url(${bSideImage})`,
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
