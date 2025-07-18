@@ -21,9 +21,43 @@ function App() {
   const [currentEPIndex, setCurrentEPIndex] = useState(0);
   const [isCarouselTransitioning, setIsCarouselTransitioning] = useState(false);
   
+  // Asset preloading state
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  
   const albumRef = useRef(null);
 
   const currentEP = data[currentEPIndex];
+
+  // Preload all assets
+  useEffect(() => {
+    const preloadAssets = async () => {
+      const imagePromises = [];
+      
+      data.forEach(ep => {
+        // Preload all images for each EP
+        Object.values(ep.images).forEach(imageSrc => {
+          const promise = new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imageSrc;
+          });
+          imagePromises.push(promise);
+        });
+      });
+
+      try {
+        await Promise.all(imagePromises);
+        setAssetsLoaded(true);
+        console.log('All assets preloaded successfully');
+      } catch (error) {
+        console.error('Error preloading assets:', error);
+        setAssetsLoaded(true); // Still allow the app to function
+      }
+    };
+
+    preloadAssets();
+  }, []);
 
   const handleMouseMove = (position) => {
     setMousePosition(position);
@@ -332,36 +366,50 @@ function App() {
       <div style={{ 
         position: 'relative',
         padding: '20px', 
-        color: isVinylExtracted ? '#333' : 'white', 
+        color: 'white', 
         minHeight: '100vh',
         zIndex: 1,
-        transition: 'all 0.8s ease'
+        transition: 'all 0.8s ease',
+        fontFamily: 'Consolas, monospace'
       }}>
-        <h1 style={{ 
-          fontSize: 'clamp(2rem, 5vw, 4rem)', 
-          marginBottom: '0.5rem',
-          textShadow: isVinylExtracted ? '2px 2px 8px rgba(255,255,255,0.8)' : '2px 2px 8px rgba(0,0,0,0.8)',
-          fontWeight: '300',
-          letterSpacing: '2px'
+        <div style={{
+          position: 'fixed',
+          left: '20px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 20,
+          maxWidth: '300px'
         }}>
-          {currentEP.title}
-        </h1>
-        <p style={{ 
-          fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
-          textShadow: isVinylExtracted ? '1px 1px 4px rgba(255,255,255,0.8)' : '1px 1px 4px rgba(0,0,0,0.8)',
-          marginBottom: '0.5rem',
-          opacity: 0.9
-        }}>
-          {currentEP.artist} • {currentEP.year}
-        </p>
-        <p style={{ 
-          fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
-          textShadow: isVinylExtracted ? '1px 1px 4px rgba(255,255,255,0.8)' : '1px 1px 4px rgba(0,0,0,0.8)',
-          marginBottom: '2rem',
-          opacity: 0.7
-        }}>
-          Interactive EP Visualizer
-        </p>
+          <h1 style={{ 
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            width: 'max-content',
+            marginBottom: '0.5rem',
+            textShadow: '2px 2px 8px rgba(0,0,0,0.8)',
+            fontWeight: '300',
+            letterSpacing: '2px',
+            fontFamily: 'Consolas, monospace',
+            color: 'white',
+            backgroundColor: 'black',
+            padding: '10px',
+            borderRadius: '4px'
+          }}>
+            {currentEP.title}
+          </h1>
+          <p style={{ 
+            fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+            textShadow: '1px 1px 4px rgba(0,0,0,0.8)',
+            marginBottom: '0.5rem',
+            opacity: 0.9,
+            fontFamily: 'Consolas, monospace',
+            color: 'white',
+            backgroundColor: 'black',
+            padding: '8px',
+            borderRadius: '4px',
+            display: 'inline-block'
+          }}>
+            {currentEP.artist} • {currentEP.year}
+          </p>
+        </div>
 
         <div style={{
           position: 'absolute',
@@ -371,7 +419,12 @@ function App() {
           fontSize: '0.8rem',
           opacity: 0.6,
           textAlign: 'right',
-          lineHeight: '1.6'
+          lineHeight: '1.6',
+          fontFamily: 'Consolas, monospace',
+          color: 'white',
+          backgroundColor: 'black',
+          padding: '8px',
+          borderRadius: '4px'
         }}>
           {!isVinylExtracted ? (
             <>
