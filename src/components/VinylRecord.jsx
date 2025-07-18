@@ -25,16 +25,35 @@ const VinylRecord = ({
         transform: `
           translate(-50%, -50%)
           ${isVinylExtracted 
-            ? `translateX(${translateX}px) translateY(${translateY}px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${isVinylFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}`
-            : `translateX(${vinylPosition}%)`
+            ? `translateX(${translateX}px) translateY(${translateY}px) translateZ(10px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) ${isVinylFlipped ? 'rotateY(180deg)' : 'rotateY(0deg)'}`
+            : `translateX(${vinylPosition}%) translateZ(-50px)`
           }
         `,
         transition: isVinylAnimating || isVinylExtracted ? 'transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275)' : 'transform 0.1s ease-out',
         opacity: vinylPosition > 0 ? 1 : 0,
-        zIndex: 2,
+        zIndex: isVinylExtracted ? 5 : 2,
         cursor: isVinylExtracted ? 'grab' : 'default'
       }}
     >
+      {/* Vinyl Thickness/Edge */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '8px',
+          left: '8px',
+          width: 'calc(100% - 16px)',
+          height: 'calc(100% - 16px)',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle at 50% 50%, transparent 0%, #111 80%, #000 100%)',
+          transform: 'translateZ(-1px)',
+          boxShadow: `
+            0 0 0 3px #222,
+            0 0 0 6px #111,
+            0 30px 60px rgba(0,0,0,0.6)
+          `
+        }}
+      />
+
       {/* Vinyl A-Side */}
       <div
         style={{
@@ -49,9 +68,10 @@ const VinylRecord = ({
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           borderRadius: '50%',
+          transform: 'translateZ(2px)',
           boxShadow: `
-            0 25px 50px rgba(0,0,0,0.4),
-            inset 0 0 100px rgba(255,255,255,0.1),
+            0 25px 50px rgba(0,0,0,0.5),
+            inset 0 0 100px rgba(0, 0, 0, 0.1),
             0 0 60px rgba(255,255,255,0.05)
           `,
           imageRendering: 'crisp-edges',
@@ -87,15 +107,15 @@ const VinylRecord = ({
           top: '6px',
           left: '6px',
           backfaceVisibility: 'hidden',
-          transform: 'rotateY(180deg)',
+          transform: 'rotateY(180deg) translateZ(4px)',
           backgroundImage: `url(${bSideImage})`,
           backgroundSize: 'cover',
           backgroundRepeat: 'no-repeat',
           backgroundPosition: 'center',
           borderRadius: '50%',
           boxShadow: `
-            0 25px 50px rgba(0,0,0,0.4),
-            inset 0 0 100px rgba(255,255,255,0.1),
+            0 25px 50px rgba(0,0,0,0.5),
+            inset 0 0 100px rgba(0, 0, 0, 0.1),
             0 0 60px rgba(255,255,255,0.05)
           `,
           imageRendering: 'crisp-edges',

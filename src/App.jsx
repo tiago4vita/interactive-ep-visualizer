@@ -1,11 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import MouseTracker from './components/MouseTracker';
-import AlbumCover from './components/AlbumCover';
-import VinylRecord from './components/VinylRecord';
-import afxFront from './assets/afx_selected8582_front.jpg';
-import afxBack from './assets/afx_selected8582_back.jpg';
-import afxASide from './assets/afx_selected8582_aside.jpg';
-import afxBSide from './assets/afx_selected8582_bside.jpg';
+import EPCarousel from './components/EPCarousel';
+import CarouselNavigation from './components/CarouselNavigation';
+import { data } from './data/data';
 
 function App() {
   const [mousePosition, setMousePosition] = useState({ x: 0.5, y: 0.5 });
@@ -14,13 +11,53 @@ function App() {
   
   // Vinyl extraction states
   const [isVinylExtracted, setIsVinylExtracted] = useState(false);
-  const [vinylPosition, setVinylPosition] = useState(0); // 0 to 100 (percentage)
+  const [vinylPosition, setVinylPosition] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [isVinylFlipped, setIsVinylFlipped] = useState(false);
   const [isVinylAnimating, setIsVinylAnimating] = useState(false);
   
+  // Carousel states
+  const [currentEPIndex, setCurrentEPIndex] = useState(0);
+  const [isCarouselTransitioning, setIsCarouselTransitioning] = useState(false);
+  
+  // Asset preloading state
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
+  
   const albumRef = useRef(null);
+
+  const currentEP = data[currentEPIndex];
+
+  // Preload all assets
+  useEffect(() => {
+    const preloadAssets = async () => {
+      const imagePromises = [];
+      
+      data.forEach(ep => {
+        // Preload all images for each EP
+        Object.values(ep.images).forEach(imageSrc => {
+          const promise = new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = resolve;
+            img.onerror = reject;
+            img.src = imageSrc;
+          });
+          imagePromises.push(promise);
+        });
+      });
+
+      try {
+        await Promise.all(imagePromises);
+        setAssetsLoaded(true);
+        console.log('All assets preloaded successfully');
+      } catch (error) {
+        console.error('Error preloading assets:', error);
+        setAssetsLoaded(true); // Still allow the app to function
+      }
+    };
+
+    preloadAssets();
+  }, []);
 
   const handleMouseMove = (position) => {
     setMousePosition(position);
@@ -160,13 +197,29 @@ function App() {
     };
   }, [isDragging, dragStart, isVinylExtracted, isFlipped]);
 
+  // Handle carousel navigation
+  const handleCarouselNavigation = (newIndex) => {
+    if (newIndex !== currentEPIndex && !isCarouselTransitioning && !isVinylExtracted) {
+      setIsCarouselTransitioning(true);
+      setCurrentEPIndex(newIndex);
+      
+      // Reset states when switching EPs
+      setIsFlipped(false);
+      setIsAnimating(false);
+      setIsVinylFlipped(false);
+      setIsVinylAnimating(false);
+    }
+  };
+
+  const handleCarouselTransitionComplete = () => {
+    setIsCarouselTransitioning(false);
+  };
+
   // Calculate perspective transformation
   const rotateX = (mousePosition.y - 0.5) * 15;
   const rotateY = (mousePosition.x - 0.5) * -15;
   const translateX = (mousePosition.x - 0.5) * 30;
   const translateY = (mousePosition.y - 0.5) * 30;
-
-
 
   return (
     <div className="App">
@@ -184,30 +237,17 @@ function App() {
           perspectiveOrigin: `${mousePosition.x * 100}% ${mousePosition.y * 100}%`,
           overflow: 'hidden',
           zIndex: -1,
-          backgroundColor: isVinylExtracted ? '#f5f5f5' : '#1a1a1a',
+          backgroundColor: isVinylExtracted ? currentEP.theme.extractedBackground : currentEP.theme.background,
           transition: 'background-color 0.8s ease'
         }}
       >
-        {/* Album Cover Component */}
-        <AlbumCover
-          frontImage={afxFront}
-          backImage={afxBack}
+        {/* EP Carousel */}
+        <EPCarousel
+          data={data}
+          currentIndex={currentEPIndex}
           mousePosition={mousePosition}
           isFlipped={isFlipped}
           isAnimating={isAnimating}
-          isVinylExtracted={isVinylExtracted}
-          translateX={translateX}
-          translateY={translateY}
-          rotateX={rotateX}
-          rotateY={rotateY}
-          albumRef={albumRef}
-        />
-
-        {/* Vinyl Record Component */}
-        <VinylRecord
-          aSideImage={afxASide}
-          bSideImage={afxBSide}
-          mousePosition={mousePosition}
           isVinylExtracted={isVinylExtracted}
           isVinylFlipped={isVinylFlipped}
           isVinylAnimating={isVinylAnimating}
@@ -216,6 +256,8 @@ function App() {
           translateY={translateY}
           rotateX={rotateX}
           rotateY={rotateY}
+          albumRef={albumRef}
+          onTransitionComplete={handleCarouselTransitionComplete}
         />
 
         {/* Enhanced ambient lighting effects */}
@@ -243,11 +285,11 @@ function App() {
             height: '100%',
             background: `conic-gradient(from ${mousePosition.x * 360}deg at ${mousePosition.x * 100}% ${mousePosition.y * 100}%, 
               transparent 0deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 30deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 30deg,
               transparent 60deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 90deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 90deg,
               transparent 120deg,
-              ${isVinylExtracted ? 'rgba(255,215,0,0.03)' : 'rgba(255,255,255,0.02)'} 150deg,
+              ${isVinylExtracted ? currentEP.theme.extractedLightColor : currentEP.theme.lightColor} 150deg,
               transparent 180deg)`,
             pointerEvents: 'none',
             opacity: 0.6,
@@ -278,8 +320,16 @@ function App() {
         )}
       </div>
 
+      {/* Carousel Navigation */}
+      <CarouselNavigation
+        data={data}
+        currentIndex={currentEPIndex}
+        onNavigate={handleCarouselNavigation}
+        isVinylExtracted={isVinylExtracted}
+      />
+
       {/* Flip zones indicators (only show when appropriate) */}
-      {!isDragging && (
+      {!isDragging && !isCarouselTransitioning && (
         <>
           <div
             style={{
@@ -316,30 +366,50 @@ function App() {
       <div style={{ 
         position: 'relative',
         padding: '20px', 
-        color: isVinylExtracted ? '#333' : 'white', 
+        color: 'white', 
         minHeight: '100vh',
         zIndex: 1,
-        transition: 'all 0.8s ease'
+        transition: 'all 0.8s ease',
+        fontFamily: 'Consolas, monospace'
       }}>
-        <h1 style={{ 
-          fontSize: 'clamp(2rem, 5vw, 4rem)', 
-          marginBottom: '1rem',
-          textShadow: isVinylExtracted ? '2px 2px 8px rgba(255,255,255,0.8)' : '2px 2px 8px rgba(0,0,0,0.8)',
-          fontWeight: '300',
-          letterSpacing: '2px'
+        <div style={{
+          position: 'fixed',
+          left: '20px',
+          top: '50%',
+          transform: 'translateY(-50%)',
+          zIndex: 20,
+          maxWidth: '300px'
         }}>
-          AFX Selected Ambient Works
-        </h1>
-        <p style={{ 
-          fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
-          textShadow: isVinylExtracted ? '1px 1px 4px rgba(255,255,255,0.8)' : '1px 1px 4px rgba(0,0,0,0.8)',
-          marginBottom: '2rem',
-          opacity: 0.9
-        }}>
-          Interactive EP Visualizer
-        </p>
-        
-
+          <h1 style={{ 
+            fontSize: 'clamp(1.2rem, 3vw, 2rem)',
+            width: 'max-content',
+            marginBottom: '0.5rem',
+            textShadow: '2px 2px 8px rgba(0,0,0,0.8)',
+            fontWeight: '300',
+            letterSpacing: '2px',
+            fontFamily: 'Consolas, monospace',
+            color: 'white',
+            backgroundColor: 'black',
+            padding: '10px',
+            borderRadius: '4px'
+          }}>
+            {currentEP.title}
+          </h1>
+          <p style={{ 
+            fontSize: 'clamp(0.8rem, 2vw, 1.2rem)',
+            textShadow: '1px 1px 4px rgba(0,0,0,0.8)',
+            marginBottom: '0.5rem',
+            opacity: 0.9,
+            fontFamily: 'Consolas, monospace',
+            color: 'white',
+            backgroundColor: 'black',
+            padding: '8px',
+            borderRadius: '4px',
+            display: 'inline-block'
+          }}>
+            {currentEP.artist} • {currentEP.year}
+          </p>
+        </div>
 
         <div style={{
           position: 'absolute',
@@ -349,7 +419,12 @@ function App() {
           fontSize: '0.8rem',
           opacity: 0.6,
           textAlign: 'right',
-          lineHeight: '1.6'
+          lineHeight: '1.6',
+          fontFamily: 'Consolas, monospace',
+          color: 'white',
+          backgroundColor: 'black',
+          padding: '8px',
+          borderRadius: '4px'
         }}>
           {!isVinylExtracted ? (
             <>
@@ -366,6 +441,7 @@ function App() {
           )}
         </div>
       </div>
+
       <style jsx>{`
         @keyframes pulse {
           0%, 100% { opacity: 0.4; transform: translate(-50%, -50%) scale(1); }
